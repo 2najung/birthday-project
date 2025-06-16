@@ -4,8 +4,8 @@ const HeroSection = () => {
   return (
     <Wrapper>
       <Background>
-        <RightConfetti src="/images/Wormis Confetti1.svg" alt="confetti" />
-        <LeftConfetti src="/images/Wormis Confetti.svg" alt="confetti" />
+        <RightConfetti src="./images/Wormis Confetti1.svg" alt="confetti" />
+        <LeftConfetti src="./images/Wormis Confetti.svg" alt="confetti" />
         <WaveBg
           viewBox="0 0 1600 522"
           fill="none"
@@ -33,7 +33,7 @@ const Wrapper = styled.section`
   padding-bottom: 200px;
   overflow: hidden;
   background-color: #ffebf9;
-  min-height: 100vh;
+  min-height: 10vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -56,9 +56,9 @@ const Background = styled.div`
 const WaveBg = styled.svg`
   position: absolute;
   bottom: 0;
-  left: -20%;
-  width: 140%;
-  height: 40%;
+  left: 0;
+  width: 100%;
+  height: 30%;
   z-index: -1;
   transform: translateY(30%);
 `;
@@ -93,6 +93,14 @@ const Title = styled.h1`
   margin-bottom: 50px;
   position: relative;
   z-index: 1;
+
+  @media (max-width: 768px) {
+    font-size: 60px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 48px;
+  }
 `;
 
 const KoreanName = styled.div`
@@ -105,4 +113,12 @@ const KoreanName = styled.div`
   position: relative;
   z-index: 1;
   margin-top: 0;
+
+  @media (max-width: 768px) {
+    font-size: 60px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 48px;
+  }
 `;

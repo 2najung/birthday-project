@@ -63,8 +63,20 @@ a:hover {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari 키보드 문제 해결 */
   align-items: center;
   width: 100%;
+  overflow-x: hidden;
+  /* 모바일 키보드로 인한 레이아웃 변경 방지 */
+  position: relative;
+}
+
+html {
+  overflow-x: hidden;
+  /* 모바일에서 부드러운 스크롤 */
+  scroll-behavior: smooth;
+  /* iOS Safari 키보드 문제 해결 */
+  height: -webkit-fill-available;
 }
 
 h1 {

@@ -9,7 +9,7 @@ const LetterSection = () => {
       <Title>편지가 도착했어요 💌</Title>
       <LetterContainer>
         <LetterImage
-          src={`/images/letter${isOpened ? "2.jpeg" : "1.png"}`}
+          src={`./images/letter${isOpened ? "2.jpeg" : "1.png"}`}
           alt="편지"
           onClick={() => setIsOpened(true)}
         />

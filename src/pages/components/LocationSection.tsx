@@ -24,7 +24,7 @@ const LocationSection = () => {
         </InfoBox>
         <RoomImageContainer>
           <RoomImage
-            src="/images/room.png"
+            src="./images/room.png"
             alt="펜션헤원 객실"
             onError={(e) => {
               e.currentTarget.style.display = "none";
@@ -68,6 +68,9 @@ const ContentContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 20px;
+    align-items: center;
+    width: 100%;
+    padding: 0;
   }
 `;
 
@@ -82,6 +85,13 @@ const InfoBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: calc(100vw - 40px);
+    height: auto;
+    min-height: 300px;
+  }
 `;
 
 const PensionName = styled.h3`
@@ -147,6 +157,12 @@ const RoomImageContainer = styled.div`
   align-items: center;
   justify-content: center;
   border: 2px solid #dee2e6;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: calc(100vw - 40px);
+    height: 250px;
+  }
 `;
 
 const RoomImage = styled.img`

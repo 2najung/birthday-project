@@ -6,6 +6,7 @@ import PhotoGallerySection from "./components/PhotoGallerySection";
 import LetterSection from "./components/LetterSection";
 import LocationSection from "./components/LocationSection";
 import WishCardSection from "./components/WishCardSection";
+import ComicHeartSection from "./components/ComicHeartSection";
 
 const BirthdayPage = () => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -63,31 +64,34 @@ const BirthdayPage = () => {
 
   return (
     <Container>
-      <MusicButton onClick={toggleMusic}>{isPlaying ? "🔇" : "🎵"}</MusicButton>
+      <MusicButton onClick={toggleMusic}>
+        <span>{isPlaying ? "🔇" : "🎵"}</span>
+      </MusicButton>
       <audio ref={audioRef} loop>
         <source
-          src="/LadyGaga - Always Remember Us This Way.mp3"
+          src="./LadyGaga - Always Remember Us This Way.mp3"
           type="audio/mpeg"
         />
         브라우저가 오디오를 지원하지 않습니다.
       </audio>
       <audio ref={birthdayAudioRef}>
-        <source src="/happy-birthday.mp3" type="audio/mpeg" />
+        <source src="./happy-birthday.mp3" type="audio/mpeg" />
         브라우저가 오디오를 지원하지 않습니다.
       </audio>
       <HeroSection />
       <LocationSection />
       <PhotoGallerySection />
+      <ComicHeartSection />
       <LetterSection />
       <WishCardSection />
       <FooterSection>
-        <LeftFirework src="/images/Group 3.svg" alt="왼쪽 폭죽" />
+        <LeftFirework src="./images/Group 3.svg" alt="왼쪽 폭죽" />
         <CakeGif
-          src="/images/Happy Birthday Icing Cake 2.svg"
+          src="./images/Happy Birthday Icing Cake 2.svg"
           alt="생일 케이크"
           onClick={toggleCakeSong}
         />
-        <RightFirework src="/images/Group 4.svg" alt="오른쪽 폭죽" />
+        <RightFirework src="./images/Group 4.svg" alt="오른쪽 폭죽" />
       </FooterSection>
     </Container>
   );
@@ -98,6 +102,10 @@ export default BirthdayPage;
 const Container = styled.div`
   padding: 0;
   background-color: white;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 `;
 
 const MusicButton = styled.button`
@@ -115,6 +123,18 @@ const MusicButton = styled.button`
   box-shadow: 0 4px 15px rgba(191, 98, 162, 0.3);
   transition: all 0.3s ease;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* 패딩 제거로 아이콘 중앙 정렬 */
+  line-height: 1; /* 라인 높이 조정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+
+  /* 이모지 위치 미세 조정 */
+  & > span {
+    display: inline-block;
+    transform: translateX(1px); /* 살짝 오른쪽으로 조정 */
+  }
 
   @media (max-width: 768px) {
     width: 50px;
