@@ -7,6 +7,7 @@ import LetterSection from "./components/LetterSection";
 import LocationSection from "./components/LocationSection";
 import WishCardSection from "./components/WishCardSection";
 import ComicHeartSection from "./components/ComicHeartSection";
+import FloatingCharacter from "./components/FloatingCharacter";
 
 const BirthdayPage = () => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -64,6 +65,7 @@ const BirthdayPage = () => {
 
   return (
     <Container>
+      <FloatingCharacter />
       <MusicButton onClick={toggleMusic}>
         <span>{isPlaying ? "🔇" : "🎵"}</span>
       </MusicButton>
@@ -126,14 +128,13 @@ const MusicButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0; /* 패딩 제거로 아이콘 중앙 정렬 */
-  line-height: 1; /* 라인 높이 조정 */
-  text-align: center; /* 텍스트 중앙 정렬 */
+  padding: 0;
+  line-height: 1;
+  text-align: center;
 
-  /* 이모지 위치 미세 조정 */
   & > span {
     display: inline-block;
-    transform: translateX(1px); /* 살짝 오른쪽으로 조정 */
+    transform: translateX(1px);
   }
 
   @media (max-width: 768px) {
@@ -182,6 +183,19 @@ const LeftFirework = styled.img`
   }
 `;
 
+const RightFirework = styled.img`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 200px;
+  height: auto;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    width: 120px;
+  }
+`;
+
 const CakeGif = styled.img`
   width: 350px;
   height: auto;
@@ -203,18 +217,5 @@ const CakeGif = styled.img`
 
   &:active {
     transform: scale(0.95);
-  }
-`;
-
-const RightFirework = styled.img`
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 200px;
-  height: auto;
-  z-index: 1;
-
-  @media (max-width: 768px) {
-    width: 120px;
   }
 `;

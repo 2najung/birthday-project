@@ -1,37 +1,70 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import styled from "styled-components";
+
+// 개별 이미지 컴포넌트를 메모이제이션
+const ComicImage = memo(
+  ({
+    src,
+    index,
+    style,
+    onClick,
+    priority = false,
+  }: {
+    src: string;
+    index: number;
+    style: React.CSSProperties;
+    onClick: () => void;
+    priority?: boolean;
+  }) => (
+    <ImageContainer style={style} onClick={onClick}>
+      <Image
+        src={src}
+        alt={`comic-${index + 1}`}
+        loading={priority ? "eager" : "lazy"}
+        width="120"
+        height="120"
+        decoding="async"
+      />
+    </ImageContainer>
+  )
+);
+
+ComicImage.displayName = "ComicImage";
 
 const ComicHeartSection = () => {
   const [selectedImage, setSelectedImage] = useState<{
     src: string;
-    description: string;
   } | null>(null);
 
-  const comicImages = [
-    { src: "./images/comic/1.jpeg", description: "코 피가 펑펑~" },
-    { src: "./images/comic/2.jpeg", description: "졸린 준영이" },
-    { src: "./images/comic/3.jpeg", description: "맛있는거 먹는 준영이" },
-    { src: "./images/comic/4.jpeg", description: "웃긴 표정의 준영이" },
-    { src: "./images/comic/5.jpeg", description: "뽀글이 준영이" },
-    { src: "./images/comic/6.jpeg", description: "하품하는 준영이" },
-    { src: "./images/comic/7.jpeg", description: "이상한 포즈의 준영이" },
-    { src: "./images/comic/8.jpeg", description: "잠든 준영이" },
-    { src: "./images/comic/9.jpeg", description: "장난치는 준영이" },
-    { src: "./images/comic/10.jpeg", description: "귀여운 준영이" },
-    { src: "./images/comic/11.jpeg", description: "신난 준영이" },
-    { src: "./images/comic/12.jpeg", description: "배고픈 준영이" },
-    { src: "./images/comic/13.jpeg", description: "행복한 준영이" },
-    { src: "./images/comic/14.jpeg", description: "열공하는 준영이" },
-    { src: "./images/comic/15.jpeg", description: "춤추는 준영이" },
-    { src: "./images/comic/16.jpeg", description: "멋있는 준영이" },
-    { src: "./images/comic/17.jpeg", description: "운동하는 준영이" },
-    { src: "./images/comic/18.jpeg", description: "게임하는 준영이" },
-    { src: "./images/comic/19.jpeg", description: "사랑스러운 준영이" },
-  ];
+  // 이미지 배열을 상수로 분리
+  const comicImages = useMemo(
+    () => [
+      { src: "./images/comic/1.jpeg" },
+      { src: "./images/comic/2.jpeg" },
+      { src: "./images/comic/3.jpeg" },
+      { src: "./images/comic/4.jpeg" },
+      { src: "./images/comic/5.jpeg" },
+      { src: "./images/comic/6.jpeg" },
+      { src: "./images/comic/7.jpeg" },
+      { src: "./images/comic/8.jpeg" },
+      { src: "./images/comic/9.jpeg" },
+      { src: "./images/comic/10.jpeg" },
+      { src: "./images/comic/11.jpeg" },
+      { src: "./images/comic/12.jpeg" },
+      { src: "./images/comic/13.jpeg" },
+      { src: "./images/comic/14.jpeg" },
+      { src: "./images/comic/15.jpeg" },
+      { src: "./images/comic/16.jpeg" },
+      { src: "./images/comic/17.jpeg" },
+      { src: "./images/comic/18.jpeg" },
+      { src: "./images/comic/19.jpeg" },
+    ],
+    []
+  );
 
   // 하트 모양 좌표 계산을 메모이제이션
   const heartPositions = useMemo(() => {
-    return comicImages.map((_, index) => {
+    const positions = comicImages.map((_, index) => {
       const t = (Math.PI * 2 * index) / comicImages.length;
       const x = 16 * Math.pow(Math.sin(t), 3);
       const y =
@@ -43,9 +76,35 @@ const ComicHeartSection = () => {
       return {
         left: `${50 + x * 2}%`,
         top: `${40 - y * 2}%`,
-        rotate: `${(index * 360) / comicImages.length}deg`,
+        transform: `translate(-50%, -50%) rotate(${
+          (index * 360) / comicImages.length
+        }deg)`,
       };
     });
+
+    // 화면에 보이는 이미지 인덱스 계산
+    const visibleIndices = positions.reduce((acc, pos, idx) => {
+      const top = parseFloat(pos.top);
+      const left = parseFloat(pos.left);
+      if (top >= 0 && top <= 100 && left >= 0 && left <= 100) {
+        acc.push(idx);
+      }
+      return acc;
+    }, [] as number[]);
+
+    return { positions, visibleIndices };
+  }, [comicImages.length]);
+
+  const handleImageClick = useCallback((image: { src: string }) => {
+    setSelectedImage(image);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedImage(null);
+  }, []);
+
+  const handleModalContentClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
   }, []);
 
   return (
@@ -53,25 +112,24 @@ const ComicHeartSection = () => {
       <Title>이준영의 2024-2025</Title>
       <HeartShape>
         {comicImages.map((image, index) => (
-          <ImageContainer
+          <ComicImage
             key={index}
-            style={{
-              top: heartPositions[index].top,
-              left: heartPositions[index].left,
-              transform: `translate(-50%, -50%) rotate(${heartPositions[index].rotate})`,
-            }}
-            onClick={() => setSelectedImage(image)}
-          >
-            <Image src={image.src} alt={image.description} />
-          </ImageContainer>
+            src={image.src}
+            index={index}
+            style={heartPositions.positions[index]}
+            onClick={() => handleImageClick(image)}
+            priority={heartPositions.visibleIndices.includes(index)}
+          />
         ))}
       </HeartShape>
       {selectedImage && (
-        <Modal onClick={() => setSelectedImage(null)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
+        <Modal onClick={handleCloseModal}>
+          <ModalContent onClick={handleModalContentClick}>
             <ModalImage
               src={selectedImage.src}
-              alt={selectedImage.description}
+              alt="선택된 이미지"
+              loading="eager"
+              decoding="async"
             />
           </ModalContent>
         </Modal>
@@ -80,7 +138,7 @@ const ComicHeartSection = () => {
   );
 };
 
-export default ComicHeartSection;
+export default memo(ComicHeartSection);
 
 // --- Styled Components ---
 
@@ -89,6 +147,8 @@ const Wrapper = styled.section`
   text-align: center;
   background: linear-gradient(135deg, #bf62a2 0%, #d478b8 100%);
   position: relative;
+  will-change: transform;
+  contain: content;
 
   &:before {
     content: "";
@@ -118,6 +178,12 @@ const HeartShape = styled.div`
   height: 800px;
   margin: 0 auto;
   max-width: 1000px;
+  will-change: transform;
+  contain: layout size;
+
+  @media (max-width: 768px) {
+    height: 600px;
+  }
 `;
 
 const ImageContainer = styled.div`
@@ -125,8 +191,16 @@ const ImageContainer = styled.div`
   width: 120px;
   height: 120px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  contain: layout style;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+  }
 
   &:hover {
     transform: scale(1.2) rotate(0deg) !important;
@@ -142,6 +216,9 @@ const Image = styled.img`
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background-color: white;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  contain: layout paint style;
 `;
 
 const Modal = styled.div`
@@ -158,6 +235,7 @@ const Modal = styled.div`
   padding: 20px;
   backdrop-filter: blur(5px);
   animation: fadeIn 0.3s ease;
+  will-change: opacity;
 
   @keyframes fadeIn {
     from {
@@ -179,6 +257,14 @@ const ModalContent = styled.div`
   flex-direction: column;
   align-items: center;
   animation: scaleIn 0.3s ease;
+  will-change: transform;
+  contain: content;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+    max-width: 95%;
+    max-height: 80vh;
+  }
 
   @keyframes scaleIn {
     from {
@@ -197,4 +283,10 @@ const ModalImage = styled.img`
   max-height: 70vh;
   object-fit: contain;
   border-radius: 10px;
+  will-change: transform;
+  contain: layout paint style;
+
+  @media (max-width: 768px) {
+    max-height: 60vh;
+  }
 `;
