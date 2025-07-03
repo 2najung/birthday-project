@@ -8,19 +8,17 @@ const ComicImage = memo(
     index,
     style,
     onClick,
-    priority = false,
   }: {
     src: string;
     index: number;
     style: React.CSSProperties;
     onClick: () => void;
-    priority?: boolean;
   }) => (
     <ImageContainer style={style} onClick={onClick}>
       <Image
         src={src}
         alt={`comic-${index + 1}`}
-        loading={priority ? "eager" : "lazy"}
+        loading={index < 6 ? "eager" : "lazy"}
         width="120"
         height="120"
         decoding="async"
@@ -118,7 +116,6 @@ const ComicHeartSection = () => {
             index={index}
             style={heartPositions.positions[index]}
             onClick={() => handleImageClick(image)}
-            priority={heartPositions.visibleIndices.includes(index)}
           />
         ))}
       </HeartShape>
@@ -191,11 +188,8 @@ const ImageContainer = styled.div`
   width: 120px;
   height: 120px;
   cursor: pointer;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  contain: layout style;
+  transition: transform 0.2s ease;
 
   @media (max-width: 768px) {
     width: 80px;
@@ -203,9 +197,8 @@ const ImageContainer = styled.div`
   }
 
   &:hover {
-    transform: scale(1.2) rotate(0deg) !important;
+    transform: scale(1.15) !important;
     z-index: 100;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -216,9 +209,14 @@ const Image = styled.img`
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   background-color: white;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  contain: layout paint style;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: box-shadow 0.2s ease;
+
+  ${ImageContainer}:hover & {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
 `;
 
 const Modal = styled.div`

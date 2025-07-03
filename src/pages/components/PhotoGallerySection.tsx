@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styled from "styled-components";
 
 interface ImageData {
@@ -8,6 +8,11 @@ interface ImageData {
 
 const PhotoGallerySection = () => {
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const dragSpeed = 1.5; // 드래그 속도 조정
 
   const images: ImageData[] = [
     { src: "./images/1.jpg", description: "300일 기념 사당에서" },
@@ -34,8 +39,77 @@ const PhotoGallerySection = () => {
     { src: "./images/19.jpg", description: "이주녕 코피펑펑" },
   ];
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    if (galleryRef.current) {
+      setStartX(e.pageX - galleryRef.current.offsetLeft);
+      setScrollLeft(galleryRef.current.scrollLeft);
+      galleryRef.current.style.scrollBehavior = "auto";
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (galleryRef.current) {
+      galleryRef.current.style.scrollBehavior = "smooth";
+      snapToClosestImage();
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    if (galleryRef.current) {
+      const x = e.pageX - galleryRef.current.offsetLeft;
+      const walk = (x - startX) * dragSpeed;
+      galleryRef.current.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (galleryRef.current) {
+      setIsDragging(true);
+      setStartX(e.touches[0].pageX - galleryRef.current.offsetLeft);
+      setScrollLeft(galleryRef.current.scrollLeft);
+      galleryRef.current.style.scrollBehavior = "auto";
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    if (galleryRef.current) {
+      const x = e.touches[0].pageX - galleryRef.current.offsetLeft;
+      const walk = (x - startX) * dragSpeed;
+      galleryRef.current.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (galleryRef.current) {
+      galleryRef.current.style.scrollBehavior = "smooth";
+      snapToClosestImage();
+    }
+  };
+
+  const snapToClosestImage = () => {
+    if (!galleryRef.current) return;
+
+    const gallery = galleryRef.current;
+    const itemWidth = 340; // 이미지 컨테이너 width + gap
+    const scrollPosition = gallery.scrollLeft;
+    const itemIndex = Math.round(scrollPosition / itemWidth);
+
+    gallery.scrollTo({
+      left: itemIndex * itemWidth,
+      behavior: "smooth",
+    });
+  };
+
   const openModal = (image: ImageData) => {
-    setSelectedImage(image);
+    if (!isDragging) {
+      setSelectedImage(image);
+    }
   };
 
   const closeModal = () => {
@@ -45,14 +119,29 @@ const PhotoGallerySection = () => {
   return (
     <Wrapper>
       <Title>📸 이나&준영</Title>
-      <Gallery>
+      <Gallery
+        ref={galleryRef}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {images.map((image, idx) => (
           <ImageContainer key={idx} onClick={() => openModal(image)}>
-            <Image src={image.src} alt={`birthday-${idx + 1}`} />
+            <Image
+              src={image.src}
+              alt={`birthday-${idx + 1}`}
+              draggable="false"
+              loading={idx < 3 ? "eager" : "lazy"}
+              decoding="async"
+            />
           </ImageContainer>
         ))}
         <VideoContainer>
-          <Video controls>
+          <Video controls preload="none">
             <source src="./images/video.mp4" type="video/mp4" />
             영상을 재생할 수 없습니다.
           </Video>
@@ -62,7 +151,12 @@ const PhotoGallerySection = () => {
       {selectedImage && (
         <Modal onClick={closeModal}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalImage src={selectedImage.src} alt="선택된 이미지" />
+            <ModalImage
+              src={selectedImage.src}
+              alt="선택된 이미지"
+              loading="eager"
+              decoding="async"
+            />
             <Description>{selectedImage.description}</Description>
           </ModalContent>
         </Modal>
@@ -96,49 +190,72 @@ const Gallery = styled.div`
   gap: 20px;
   overflow-x: auto;
   padding: 20px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
   width: 100%;
   max-width: calc(100vw - 40px);
   box-sizing: border-box;
+  cursor: grab;
+  user-select: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 
   &::-webkit-scrollbar {
-    height: 8px;
+    display: none;
   }
 
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
+  scrollbar-width: none;
 
-  &::-webkit-scrollbar-thumb {
-    background: #ffebf9;
-    border-radius: 4px;
+  &:active {
+    cursor: grabbing;
   }
 `;
 
 const ImageContainer = styled.div`
   flex: 0 0 auto;
   width: 320px;
-  scroll-snap-align: start;
+  height: 320px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 768px) {
+    width: 280px;
+    height: 280px;
+  }
 `;
 
 const Image = styled.img`
   width: 100%;
-  height: 320px;
+  height: 100%;
   border-radius: 15px;
   object-fit: cover;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
 
   &:hover {
     transform: scale(1.02);
+  }
+
+  @media (max-width: 768px) {
+    height: 280px;
   }
 `;
 
 const VideoContainer = styled(ImageContainer)`
   width: 450px;
+
+  @media (max-width: 768px) {
+    width: 350px;
+  }
 `;
 
 const Video = styled.video`

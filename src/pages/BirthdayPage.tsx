@@ -1,13 +1,16 @@
 // BirthdayPage.tsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense, lazy } from "react";
 import styled from "styled-components";
 import HeroSection from "./components/HeroSection";
-import PhotoGallerySection from "./components/PhotoGallerySection";
-import LetterSection from "./components/LetterSection";
 import LocationSection from "./components/LocationSection";
-import WishCardSection from "./components/WishCardSection";
-import ComicHeartSection from "./components/ComicHeartSection";
-import FloatingCharacter from "./components/FloatingCharacter";
+
+// 무거운 컴포넌트들을 lazy loading으로 처리
+const PhotoGallerySection = lazy(
+  () => import("./components/PhotoGallerySection")
+);
+const ComicHeartSection = lazy(() => import("./components/ComicHeartSection"));
+const LetterSection = lazy(() => import("./components/LetterSection"));
+const WishCardSection = lazy(() => import("./components/WishCardSection"));
 
 const BirthdayPage = () => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -65,27 +68,40 @@ const BirthdayPage = () => {
 
   return (
     <Container>
-      <FloatingCharacter />
       <MusicButton onClick={toggleMusic}>
         <span>{isPlaying ? "🔇" : "🎵"}</span>
       </MusicButton>
-      <audio ref={audioRef} loop>
+      <audio ref={audioRef} loop preload="none">
         <source
           src="./LadyGaga - Always Remember Us This Way.mp3"
           type="audio/mpeg"
         />
         브라우저가 오디오를 지원하지 않습니다.
       </audio>
-      <audio ref={birthdayAudioRef}>
+      <audio ref={birthdayAudioRef} preload="none">
         <source src="./happy-birthday.mp3" type="audio/mpeg" />
         브라우저가 오디오를 지원하지 않습니다.
       </audio>
+
       <HeroSection />
       <LocationSection />
-      <PhotoGallerySection />
-      <ComicHeartSection />
-      <LetterSection />
-      <WishCardSection />
+
+      <Suspense fallback={<LoadingDiv>사진을 불러오는 중...</LoadingDiv>}>
+        <PhotoGallerySection />
+      </Suspense>
+
+      <Suspense fallback={<LoadingDiv>하트를 그리는 중...</LoadingDiv>}>
+        <ComicHeartSection />
+      </Suspense>
+
+      <Suspense fallback={<LoadingDiv>편지를 준비하는 중...</LoadingDiv>}>
+        <LetterSection />
+      </Suspense>
+
+      <Suspense fallback={<LoadingDiv>소원권을 준비하는 중...</LoadingDiv>}>
+        <WishCardSection />
+      </Suspense>
+
       <FooterSection>
         <LeftFirework src="./images/Group 3.svg" alt="왼쪽 폭죽" />
         <CakeGif
@@ -100,6 +116,16 @@ const BirthdayPage = () => {
 };
 
 export default BirthdayPage;
+
+const LoadingDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-family: "Cafe24Ssurround", cursive;
+  font-size: 1.5rem;
+  color: #bf62a2;
+`;
 
 const Container = styled.div`
   padding: 0;

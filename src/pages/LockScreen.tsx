@@ -7,7 +7,7 @@ const LockScreen = () => {
   const navigate = useNavigate();
 
   const handleSubmit = () => {
-    if (password === "041907040419") {
+    if (password === "070404190721") {
       navigate("/birthday");
     } else {
       alert("비밀번호가 틀렸어!");

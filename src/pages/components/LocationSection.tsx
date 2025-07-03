@@ -131,17 +131,17 @@ const DirectionInfo = styled.div`
 `;
 
 const DirectionTitle = styled.h4`
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-family: "Cafe24Ssurround", cursive;
   color: #2c3e50;
-  margin: 0 0 3px 0;
+  margin: 0 0 10px 0;
 `;
 
 const DirectionText = styled.p`
-  font-size: 0.75rem;
+  font-size: 1.1rem;
   font-family: "Cafe24Ssurround", cursive;
   color: #666;
-  line-height: 1.2;
+  line-height: 1.8;
   margin: 0;
 `;
 
